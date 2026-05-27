@@ -1,10 +1,10 @@
 # Store reactivity — no Combine
 
-Stores are `@MainActor @Observable`. Reactive propagation to view models uses **`Observations`** (Swift 6.2 / iOS 26) or an explicit **`AsyncStream`**. Never `CurrentValueSubject`, `PassthroughSubject`, `.sink`, `AnyCancellable`, or `didSet`-driven publishers.
+Stores are `@MainActor @Observable`. Reactive propagation to view models use **`Observations`** (Swift 6.2 / iOS 26) or explicit **`AsyncStream`**. Never `CurrentValueSubject`, `PassthroughSubject`, `.sink`, `AnyCancellable`, or `didSet`-driven publishers.
 
 ## The store: plain @Observable, no publishers
 
-A store holds normal `var` state. Because it is `@Observable`, mutating that state is all that is needed for observers to be notified — no manual broadcasting.
+Store hold normal `var` state. It `@Observable`, so mutate state = observers notified. No manual broadcast.
 
 ```swift
 // FooStore.swift
@@ -40,11 +40,11 @@ final class FooStore {
 }
 ```
 
-Per-instance store: drop `static let shared`, take the entity in `init`, and the coordinator passes it down with `.environment(store)`.
+Per-instance store: drop `static let shared`, take entity in `init`, coordinator pass down with `.environment(store)`.
 
 ## Primary: observe with `Observations`
 
-In the view model, observe a store property as an async sequence. Each change to the tracked `@Observable` property emits the new value. Launch it from a `.task`-driven intent.
+In view model, observe store property as async sequence. Each change to tracked `@Observable` property emits new value. Launch from `.task`-driven intent.
 
 ```swift
 private func observe() async {
@@ -55,13 +55,13 @@ private func observe() async {
 }
 ```
 
-Assign `Observations { ... }` to a `let` first — using it directly as the `for await ... in` source collides with the loop's trailing closure.
+Assign `Observations { ... }` to `let` first — use directly as `for await ... in` source collides with loop trailing closure.
 
-The loop ends when the `.task` it runs in is cancelled (i.e. the view disappears). No tokens to retain, nothing to cancel manually.
+Loop ends when `.task` cancelled (view disappear). No tokens to retain, nothing to cancel manual.
 
 ## Alternative: vend an `AsyncStream`
 
-Use this only for **events** that are not modelled as observable state (one-shot signals: "session finished", "sync completed"), or to support pre-iOS-26 targets. The store owns the continuations and yields to them.
+Use only for **events** not modelled as observable state (one-shot signals: "session finished", "sync completed"), or pre-iOS-26 targets. Store own continuations and yield to them.
 
 ```swift
 @MainActor
@@ -89,7 +89,7 @@ final class SyncStore {
 }
 ```
 
-Consume in the view model:
+Consume in view model:
 
 ```swift
 private func observeSync() async {

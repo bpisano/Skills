@@ -6,15 +6,15 @@ license: MIT
 
 # iOS Code Style
 
-Personal Swift conventions applied to every iOS/macOS project, regardless of architecture. For project structure (Coordinator → ViewModel → Store → View, file tree, scaffolding) use the **ios-project** skill instead.
+Personal Swift conventions. Every iOS/macOS project, any architecture. Project structure (Coordinator → ViewModel → Store → View, file tree, scaffolding) → use **ios-project** skill.
 
-Apply these on every Swift file you write or edit. They are not suggestions.
+Apply every Swift file you write or edit. Not suggestions.
 
 ## 1. One type per file
 
-Exactly one `class` / `struct` / `enum` / `protocol` per file. The filename matches the top-level type (`POIStore.swift` holds `POIStore`).
+Exactly one `class` / `struct` / `enum` / `protocol` per file. Filename match top-level type (`POIStore.swift` hold `POIStore`).
 
-**Only exception:** a `private extension` that nests helper types belonging to the main type may live in the same file.
+**Only exception:** `private extension` nesting helper types of main type may share file.
 
 ```swift
 // POIMarker.swift
@@ -29,7 +29,7 @@ private extension POIMarker {
 
 ## 2. Explicit types on every declaration
 
-Always annotate the type, even when the compiler could infer it.
+Always annotate type, even when compiler infer.
 
 ```swift
 let number: Int = 0
@@ -37,7 +37,7 @@ let pois: [POI] = []
 let store: POIStore = .init()
 ```
 
-Prefer `.init()` on the right-hand side when the type is already explicit on the left. Do not repeat the type name.
+Prefer `.init()` on right side when type explicit on left. No repeat type name.
 
 ```swift
 let store: POIStore = .init()        // ✅
@@ -54,7 +54,7 @@ if let coordinate { center(on: coordinate) }     // ✅ no type
 
 ## 3. Member declaration order
 
-Members appear in this fixed order. Within each numbered section, order by access: `public` → internal (no keyword) → `private`, and separate those access subgroups with a single blank line.
+Members in fixed order. Within each numbered section, order by access: `public` → internal (no keyword) → `private`, separate access subgroups with single blank line.
 
 1. **Static stored properties** — `public static let` · `static let` · `private static let`
 2. **Instance stored properties** — `public let`/`var` · `let`/`var` · `private let`/`var`
@@ -101,7 +101,7 @@ final class POIStore {
 
 ## 4. Language conventions
 
-- **Full Swift concurrency. No Combine.** Use `async`/`await`, `AsyncSequence`/`AsyncStream`, and `Observations` / `withObservationTracking` for reactive propagation. Never `CurrentValueSubject`, `PassthroughSubject`, `.sink`, `AnyCancellable`, or completion handlers.
+- **Full Swift concurrency. No Combine.** Use `async`/`await`, `AsyncSequence`/`AsyncStream`, `Observations` / `withObservationTracking` for reactive propagation. Never `CurrentValueSubject`, `PassthroughSubject`, `.sink`, `AnyCancellable`, completion handlers.
 - **`Sendable`** on all domain models. `actor` / `@MainActor` isolation for shared mutable state.
-- **English for code** (identifiers, comments, log messages). **French for user-facing strings** — keep them in `Localizable.strings` even when the app is French-only at launch, for forward compatibility.
+- **English for code** (identifiers, comments, log messages). **French for user-facing strings** — keep in `Localizable.strings` even when app French-only at launch, for forward compat.
 - **SwiftUI previews** for every reusable component and screen.

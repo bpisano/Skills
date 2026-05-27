@@ -1,6 +1,6 @@
 # Scaffold a feature
 
-Minimum file set to add a screen named `Foo`. Replace `Foo` and adapt state/intents. Create only the files the feature actually needs (Store and Router are optional).
+Min file set add screen named `Foo`. Replace `Foo`, adapt state/intents. Make only files feature need (Store and Router optional).
 
 ```
 Coordinators/Foo/FooCoordinator.swift           # only if the feature owns navigation
@@ -30,7 +30,7 @@ protocol FooViewModel {
 
 ## ViewModel implementation
 
-Depends on a store, maps results into `DataState`, observes the store reactively (see `store-reactivity.md` — no Combine).
+Depend on store, map results into `DataState`, observe store reactively (see `store-reactivity.md` — no Combine).
 
 ```swift
 // UIFooViewModel.swift
@@ -101,7 +101,7 @@ extension FooViewModel where Self == MockFooViewModel {
 
 ## View
 
-Generic over the protocol. UI only. Callbacks bubble up via chained modifiers returning `Self`.
+Generic over protocol. UI only. Callbacks bubble up via chained modifiers returning `Self`.
 
 ```swift
 // FooView.swift
@@ -197,4 +197,4 @@ struct FooCoordinator: View {
 }
 ```
 
-For the store, see `store-reactivity.md`.
+Store: see `store-reactivity.md`.

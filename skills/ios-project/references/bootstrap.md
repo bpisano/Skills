@@ -1,10 +1,10 @@
 # Bootstrap a new project
 
-Create these files to stand up an empty app on the architecture. Order: state primitives → app state → router → root store → root coordinator (+ VM trio) → app entry. Adjust the module/app name; `App` below is a placeholder.
+Make these files. Stand up empty app on architecture. Order: state primitives → app state → router → root store → root coordinator (+ VM trio) → app entry. Adjust module/app name; `App` below placeholder.
 
 ## 1. DataState + DataStateView (`Core/State/`)
 
-Local replacement for an external StateKit. Concurrency-native, `@Observable`.
+Local replacement for external StateKit. Concurrency-native, `@Observable`.
 
 ```swift
 // DataState.swift
@@ -247,4 +247,4 @@ struct App: SwiftUI.App {
 }
 ```
 
-After this, add the first feature with `feature-scaffold.md`.
+After, add first feature with `feature-scaffold.md`.
