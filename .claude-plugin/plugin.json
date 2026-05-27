@@ -1,0 +1,11 @@
+{
+  "name": "dev-ios",
+  "description": "Personal iOS/Swift development conventions: code style (ios-dev) and Coordinator-Store architecture scaffolding (ios-project).",
+  "version": "0.1.0",
+  "author": {
+    "name": "Benjamin Pisano"
+  },
+  "license": "MIT",
+  "keywords": ["ios", "swift", "swiftui", "architecture", "code-style", "coordinator", "store"],
+  "skills": ["./skills/ios-dev", "./skills/ios-project"]
+}

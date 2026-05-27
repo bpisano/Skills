@@ -1,0 +1,23 @@
+{
+  "name": "dev-ios",
+  "owner": {
+    "name": "Benjamin Pisano"
+  },
+  "metadata": {
+    "description": "Personal iOS/Swift development conventions and architecture scaffolding.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "dev-ios",
+      "source": "./",
+      "description": "Two skills: ios-dev (Swift code style) and ios-project (Coordinator-Store architecture bootstrap + feature scaffolding).",
+      "version": "0.1.0",
+      "author": {
+        "name": "Benjamin Pisano"
+      },
+      "keywords": ["ios", "swift", "swiftui", "architecture", "code-style"],
+      "category": "workflow"
+    }
+  ]
+}
