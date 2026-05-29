@@ -30,7 +30,7 @@ Read relevant reference file before generating code — they hold full templates
 
 ## File tree
 
-Features grouped by layer, then by feature name.
+Group by feature/domain, **not by file type**. Coordinators and UI views each get a per-feature folder. **Core groups each domain into its own self-contained folder** — store + models + networking + persistence co-located — keeping only cross-cutting primitives (state, app state, navigation, shared networking client) as standalone folders. Don't split a domain across top-level `Models/`, `Networking/`, `Persistence/` buckets.
 
 ```
 <App>/
@@ -41,18 +41,27 @@ Features grouped by layer, then by feature name.
 │   │   └── ViewModels/{RootCoordinatorViewModel,UIRootCoordinatorViewModel,MockRootCoordinatorViewModel}.swift
 │   └── <Feature>/
 │       ├── <Feature>Coordinator.swift
-│       └── Router/<Feature>Router.swift          # optional, only if the feature has internal navigation
+│       └── <Feature>Route.swift                  # Route enum (cases + destination) — only if the feature pushes screens
 ├── Core/
-│   ├── AppState/AppState.swift
-│   ├── Navigation/Router.swift
-│   ├── State/{DataState,DataStateView}.swift     # local StateKit replacement
-│   └── Stores/<Domain>/<Domain>Store.swift
+│   ├── AppState/AppState.swift                    # cross-cutting primitives stay standalone
+│   ├── Navigation/{Route,Router}.swift            # generic Route protocol + reusable Router
+│   ├── State/{DataState,DataStateView}.swift      # local StateKit replacement
+│   ├── Networking/{Client,Middleware}.swift       # shared infra used by every domain
+│   └── <Domain>/                                  # one folder per domain/service, self-contained
+│       ├── <Domain>Store.swift
+│       ├── <Domain>.swift                         # domain model(s)
+│       ├── Persistence/                           # this domain's persistence
+│       ├── Requests/                              # this domain's network requests
+│       └── Wire/                                  # this domain's DTOs
 ├── UI/
 │   ├── Views/<Feature>/
 │   │   ├── <Feature>View.swift
 │   │   ├── ViewModels/{<Feature>ViewModel,UI<Feature>ViewModel,Mock<Feature>ViewModel}.swift
 │   │   └── Components/
 │   ├── Components/  ButtonStyles/  ViewModifiers/
+├── Resources/                                     # assets, localization, plists — kept out of source folders
+│   ├── Assets.xcassets
+│   └── Localizable.xcstrings
 └── Utils/Extensions/
 ```
 
@@ -67,5 +76,6 @@ If project use synchronized root group in Xcode (files on disk auto-join target)
 | ViewModel impl | `UIFooViewModel` (`@Observable`) | `UIMapViewModel` |
 | ViewModel mock | `MockFooViewModel` + `static func mock` | `MockMapViewModel` |
 | Store | `FooStore` (`@MainActor @Observable`) | `POIStore` |
-| Router | `Router` / `FooRouter` + nested `enum Route` | `Router` |
+| Route | `FooRoute: Route` enum (owns `destination(for:)`) | `ProfileRoute` |
+| Router | generic `Router` (`@MainActor @Observable`, `NavigationPath`) | `Router` |
 | View | `FooView<ViewModel: FooViewModel>` | `MapView` |

@@ -3,14 +3,19 @@
 Min file set add screen named `Foo`. Replace `Foo`, adapt state/intents. Make only files feature need (Store and Router optional).
 
 ```
-Coordinators/Foo/FooCoordinator.swift           # only if the feature owns navigation
+Coordinators/Foo/
+├── FooCoordinator.swift            # only if the feature owns navigation
+└── FooRoute.swift                  # Route enum: cases + destination(for:) — only if it pushes screens
 UI/Views/Foo/
 ├── FooView.swift
 └── ViewModels/
     ├── FooViewModel.swift          # protocol
     ├── UIFooViewModel.swift        # @Observable impl
     └── MockFooViewModel.swift      # mock + static func mock
-Core/Stores/Foo/FooStore.swift      # only if it needs its own state/business logic
+Core/Foo/                           # domain folder — only if the feature needs its own state/business logic
+├── FooStore.swift
+├── Foo.swift                       # domain model(s)
+└── {Persistence,Requests,Wire}/    # co-locate this domain's persistence, network requests, DTOs
 ```
 
 ## ViewModel protocol
@@ -110,8 +115,8 @@ struct FooView<ViewModel: FooViewModel>: View {
 
     @State private var viewModel: ViewModel
 
-    init(viewModel: @autoclosure @escaping () -> ViewModel) {
-        _viewModel = .init(wrappedValue: viewModel())
+    init(viewModel: ViewModel) {
+        _viewModel = .init(wrappedValue: viewModel)
     }
 
     var body: some View {
@@ -154,7 +159,27 @@ extension FooView {
 }
 ```
 
+## Route (if the feature pushes screens)
+
+Each feature owns a `Route` enum that maps its cases to destinations. No navigation `switch` in the coordinator — the route is the source of truth. See `architecture.md` for the `Route` protocol + generic `Router`.
+
+```swift
+// FooRoute.swift
+enum FooRoute: Route {
+    case detail(FooItem)
+
+    static func destination(for route: FooRoute) -> some View {
+        switch route {
+        case let .detail(item):
+            FooDetailView(item: item)
+        }
+    }
+}
+```
+
 ## Coordinator (if the feature owns navigation)
+
+Owns the `Router`, binds it to the stack, registers each route type with `.navigationDestination(for:using:)`. Hands children navigation callbacks that call `router.navigate(to:)`.
 
 ```swift
 // FooCoordinator.swift
@@ -164,15 +189,7 @@ struct FooCoordinator: View {
     var body: some View {
         NavigationStack(path: $router.path) {
             foo
-                .navigationDestination(for: Router.Route.self) { route in
-                    Group {
-                        switch route {
-                        case let .detail(item):
-                            detail(for: item)
-                        }
-                    }
-                    .environment(router)
-                }
+                .navigationDestination(for: FooRoute.self, using: router)
         }
     }
 
@@ -181,19 +198,29 @@ struct FooCoordinator: View {
         let viewModel: UIFooViewModel = .init()
         FooView(viewModel: viewModel)
             .onSelectItem { item in
-                router.navigate(to: .detail(item))
+                router.navigate(to: FooRoute.detail(item))
             }
-    }
-
-    @ViewBuilder
-    private func detail(for item: FooItem) -> some View {
-        // child view
-        Text(item.title)
     }
 }
 
 #Preview {
     FooCoordinator()
+}
+```
+
+A descendant already inside the stack reads the router from the environment instead of taking a callback:
+
+```swift
+struct FooDetailView: View {
+    let item: FooItem
+
+    @Environment(Router.self) private var router
+
+    var body: some View {
+        Button("Voir plus") {
+            router.navigate(to: FooRoute.related(item))
+        }
+    }
 }
 ```
 

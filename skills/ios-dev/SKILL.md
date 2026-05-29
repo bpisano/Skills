@@ -1,6 +1,6 @@
 ---
 name: ios-dev
-description: Swift/iOS code style and formatting conventions — one type per file, explicit types everywhere, strict member declaration ordering, .init() syntax, full Swift concurrency with no Combine, Sendable models, English code with French user-facing strings. Use whenever writing, editing, or reviewing Swift code in any iOS or macOS project.
+description: Swift/iOS code style and formatting conventions — one type per file, explicit types everywhere, strict member declaration ordering, .init() syntax, full Swift concurrency with no Combine, Sendable models, English code. Use whenever writing, editing, or reviewing Swift code in any iOS or macOS project.
 license: MIT
 ---
 
@@ -105,3 +105,38 @@ final class POIStore {
 - **`Sendable`** on all domain models. `actor` / `@MainActor` isolation for shared mutable state.
 - **English for code** (identifiers, comments, log messages). **French for user-facing strings** — keep in `Localizable.strings` even when app French-only at launch, for forward compat.
 - **SwiftUI previews** for every reusable component and screen.
+
+## 5. Custom styles expose a static accessor
+
+Every custom style type (`ButtonStyle`, `LabelStyle`, `ToggleStyle`, …) ships a convenience extension on its protocol constrained to `Self`, so call sites use the dotted form instead of the bare initializer.
+
+```swift
+private struct PrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View { /* ... */ }
+}
+
+extension ButtonStyle where Self == PrimaryButtonStyle {
+    static var primary: PrimaryButtonStyle { .init() }
+    // with parameters, expose a func instead:
+    // static func primary(_ variant: Variant = .filled) -> PrimaryButtonStyle { .init(variant: variant) }
+}
+```
+
+```swift
+Button("Save") { save() }
+    .buttonStyle(.primary)              // ✅ dotted accessor
+    .buttonStyle(PrimaryButtonStyle())  // ❌ bare initializer at call site
+```
+
+## 6. File header
+
+Every file keeps the default Xcode header: filename, project name, blank line, then `Created by` + author + date (`DD/MM/YYYY`).
+
+```swift
+//
+//  File.swift
+//  ProjectName
+//
+//  Created by Benjamin Pisano on 20/05/2026.
+//
+```

@@ -76,7 +76,20 @@ enum AppState: Hashable, Sendable {
 }
 ```
 
-## 3. Router (`Core/Navigation/`)
+## 3. Navigation: Route + Router (`Core/Navigation/`)
+
+Type-safe routing: routes own their destinations, one generic `Router` drives every stack. See `architecture.md` for the full rationale.
+
+```swift
+// Route.swift
+protocol Route: Hashable {
+    associatedtype Destination: View
+
+    @MainActor
+    @ViewBuilder
+    static func destination(for route: Self) -> Destination
+}
+```
 
 ```swift
 // Router.swift
@@ -85,7 +98,7 @@ enum AppState: Hashable, Sendable {
 final class Router {
     var path: NavigationPath = .init()
 
-    func navigate(to route: Route) {
+    func navigate(to route: some Hashable) {
         path.append(route)
     }
 
@@ -93,20 +106,28 @@ final class Router {
         guard !path.isEmpty else { return }
         path.removeLast()
     }
-}
 
-private extension Router {
-    // declare the app's routes here as the project grows
-}
-
-extension Router {
-    enum Route: Hashable {
-        // case poiDetail(POI)
+    func popToRoot() {
+        path = .init()
     }
 }
 ```
 
-## 4. Root store (`Core/Stores/AppContext/`)
+```swift
+// View+navigationDestination.swift
+extension View {
+    func navigationDestination<R: Route>(for route: R.Type, using router: Router) -> some View {
+        navigationDestination(for: R.self) { route in
+            R.destination(for: route)
+                .environment(router)
+        }
+    }
+}
+```
+
+Each feature declares its own `enum FooRoute: Route` (cases + `destination(for:)`) in its coordinator folder — see `feature-scaffold.md`.
+
+## 4. Root store (`Core/AppContext/`)
 
 ```swift
 // AppContextStore.swift
@@ -187,8 +208,8 @@ extension RootCoordinatorViewModel where Self == MockRootCoordinatorViewModel {
 struct RootCoordinator<ViewModel: RootCoordinatorViewModel>: View {
     @State private var viewModel: ViewModel
 
-    init(viewModel: @autoclosure @escaping () -> ViewModel) {
-        _viewModel = .init(wrappedValue: viewModel())
+    init(viewModel: ViewModel) {
+        _viewModel = .init(wrappedValue: viewModel)
     }
 
     var body: some View {
